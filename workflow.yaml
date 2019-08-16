@@ -1,0 +1,30 @@
+version: v1
+description: Nebula Workflow
+
+steps:
+- name: init-workflow
+  image: alpine:latest
+  input:
+    - echo "Initializing workflow"
+- name: kubectl-version
+  image: gcr.io/nebula-tasks/nebula-kubectl:57d9f2b
+  spec:
+    command: apply 
+    file: deploy/nebula-demo.yaml
+    namespace: heath-dev
+    cluster:
+      name: shared-k8s-dev-cluster
+      url:
+        $type: Secret
+        name: url
+      cadata:
+        $type: Secret
+        name: cadata
+      token:
+        $type: Secret
+        name: token
+    git:
+      name: nebula-workflow-examples
+      repository: https://github.com/heathseals/nebula-workflow-examples.git
+  dependsOn:
+    - init-workflow
