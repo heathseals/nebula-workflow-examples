@@ -11,7 +11,7 @@ steps:
   spec:
     command: apply 
     file: deploy/nebula-demo.yaml
-    namespace: default
+    namespace: heath-dev
     cluster:
       name: shared-k8s-dev-cluster
       url:
