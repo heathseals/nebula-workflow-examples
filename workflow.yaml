@@ -6,7 +6,7 @@ steps:
   image: alpine:latest
   input:
     - echo "Initializing workflow"
-- name: kubectl-version
+- name: nebula-demo-deploy
   image: gcr.io/nebula-tasks/nebula-kubectl:57d9f2b
   spec:
     command: apply 
@@ -28,3 +28,13 @@ steps:
       repository: https://github.com/heathseals/nebula-workflow-examples.git
   dependsOn:
     - init-workflow
+- name: slack-notify
+  image: gcr.io/nebula-tasks/nebula-slack-notification:57d9f2b
+  spec:
+    apitoken:
+      $type: Secret
+      name: slack-token
+    channel: "#team-infracore"
+    message: "Deployment succeeded!"
+  dependsOn:
+  - nebula-demo-deploy
