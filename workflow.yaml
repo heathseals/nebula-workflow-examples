@@ -6,11 +6,11 @@ steps:
   image: alpine:latest
   input:
     - echo "Initializing workflow"
-- name: Step 2 - Deploy via kubectl 
+- name: Step 2a - Deployments via kubectl 
   image: gcr.io/nebula-tasks/nebula-kubectl:57d9f2b
   spec:
     command: apply 
-    file: deploy/nebula-demo.yaml
+    file: deploy/deployments.yaml
     namespace: heath-dev
     cluster:
       name: shared-k8s-dev-cluster
@@ -28,6 +28,28 @@ steps:
       repository: https://github.com/heathseals/nebula-workflow-examples.git
   dependsOn:
     - Step 1 - Initialize Workflow 
+- name: Step 2b - Services via kubectl 
+  image: gcr.io/nebula-tasks/nebula-kubectl:57d9f2b
+  spec:
+    command: apply 
+    file: deploy/services.yaml
+    namespace: heath-dev
+    cluster:
+      name: shared-k8s-dev-cluster
+      url:
+        $type: Secret
+        name: url
+      cadata:
+        $type: Secret
+        name: cadata
+      token:
+        $type: Secret
+        name: token
+    git:
+      name: nebula-workflow-examples
+      repository: https://github.com/heathseals/nebula-workflow-examples.git
+  dependsOn:
+    - Step 2a - Deployments via kubectl
 - name: Step 3 - Notify via Slack 
   image: gcr.io/nebula-tasks/nebula-slack-notification:57d9f2b
   spec:
@@ -37,4 +59,4 @@ steps:
     channel: "#team-infracore-nebula-workflows"
     message: "Deployment succeeded!"
   dependsOn:
-  - Step 2 - Deploy via kubectl 
+  - Step 2b - Services via kubectl
