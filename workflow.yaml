@@ -2,11 +2,11 @@ version: v1
 description: Nebula Workflow
 
 steps:
-- name: init-workflow
+- name: Step 1 - Initialize Workflow
   image: alpine:latest
   input:
     - echo "Initializing workflow"
-- name: nebula-demo-deploy
+- name: Step 2 - Deploy via kubectl 
   image: gcr.io/nebula-tasks/nebula-kubectl:57d9f2b
   spec:
     command: apply 
@@ -27,14 +27,14 @@ steps:
       name: nebula-workflow-examples
       repository: https://github.com/heathseals/nebula-workflow-examples.git
   dependsOn:
-    - init-workflow
-- name: slack-notify
+    - Step 1 - Initialize Workflow 
+- name: Step 3 - Notify via Slack 
   image: gcr.io/nebula-tasks/nebula-slack-notification:57d9f2b
   spec:
     apitoken:
       $type: Secret
       name: slack-token
-    channel: "#team-infracore"
+    channel: "#team-infracore-nebula-workflows"
     message: "Deployment succeeded!"
   dependsOn:
-  - nebula-demo-deploy
+  - Step 2 - Deploy via kubectl 
