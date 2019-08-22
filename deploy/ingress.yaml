@@ -1,0 +1,26 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    certmanager.k8s.io/cluster-issuer: letsencrypt
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "true"
+  name: maintenance-ingress
+  namespace: heath-dev
+spec:
+  rules:
+  - host: nebula.heath-dev.k8s.puppet.net
+    http:
+      paths:
+      - path: /tea
+        backend:
+          serviceName: tea-svc
+          servicePort: 80
+      - path: /coffee
+        backend:
+          serviceName: coffee-svc
+          servicePort: 80
+  tls:
+  - hosts:
+    - nebula.heath-dev.k8s.puppet.net
+    secretName: nebula.heath-dev.k8s.puppet.net-tls

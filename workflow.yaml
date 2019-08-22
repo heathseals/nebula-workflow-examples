@@ -50,6 +50,28 @@ steps:
       repository: https://github.com/heathseals/nebula-workflow-examples.git
   dependsOn:
     - Step 2a - Deployments via kubectl
+- name: Step 2c - Ingress via kubectl 
+  image: gcr.io/nebula-tasks/nebula-kubectl:57d9f2b
+  spec:
+    command: apply 
+    file: deploy/ingress.yaml
+    namespace: heath-dev
+    cluster:
+      name: shared-k8s-dev-cluster
+      url:
+        $type: Secret
+        name: url
+      cadata:
+        $type: Secret
+        name: cadata
+      token:
+        $type: Secret
+        name: token
+    git:
+      name: nebula-workflow-examples
+      repository: https://github.com/heathseals/nebula-workflow-examples.git
+  dependsOn:
+    - Step 2b - Services via kubectl
 - name: Step 3 - Notify via Slack 
   image: gcr.io/nebula-tasks/nebula-slack-notification:57d9f2b
   spec:
@@ -59,4 +81,4 @@ steps:
     channel: "#team-infracore-nebula-workflows"
     message: "Deployment succeeded!"
   dependsOn:
-  - Step 2b - Services via kubectl
+  - Step 2c - Ingress via kubectl
