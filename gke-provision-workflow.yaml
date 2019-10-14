@@ -58,6 +58,7 @@ steps:
       gcp_project: 
         $type: Parameter
         name: project
+    workspace: test
     directory: gke-provision/infra/
     credentials:
       credentials.json:
