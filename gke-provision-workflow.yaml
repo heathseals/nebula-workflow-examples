@@ -1,0 +1,59 @@
+version: v1
+description: Nebula Deploy Demo
+
+parameters:
+  project:
+    description: The name of the project in Google Cloud Platform
+    default: infracore
+  terraform_state_bucket: 
+    description: The name of the bucket you'd like to store terraform state in
+    default: infracore-tf-state
+  slack_channel:
+    description: Slack channel (include preceding hashtag)
+    default: #team-infracore-nebula-workflows
+  slack_message:
+    description: Slack message
+
+steps:
+- name: provision-gcs-storage-bucket
+  image: projectnebula/core
+  input: 
+    - apk --no-cache add curl python &&
+      curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-264.0.0-linux-x86_64.tar.gz &&
+      tar xzf google-cloud-sdk-264.0.0-linux-x86_64.tar.gz &&
+      rm google-cloud-sdk-264.0.0-linux-x86_64.tar.gz &&
+      PATH=/workspace/google-cloud-sdk/bin:$PATH &&
+      PROJECT=$(ni get -p {.gcp_project}) &&
+      TERRAFORM_STATE_BUCKET=$(ni get -p {.bucket}) &&
+      ni get -p {.credentials} &&
+      ni credentials config &&
+      gcloud auth activate-service-account --key-file /workspace/credentials.json &&
+      gcloud config set project $PROJECT &&
+      gcloud config set core/disable_usage_reporting true &&
+      gcloud config set component_manager/disable_update_check true &&
+      if gsutil ls | grep -q gs://$TERRAFORM_STATE_BUCKET; then exit 0; else gsutil mb -l us-west1 gs://$TERRAFORM_STATE_BUCKET; fi
+  spec:
+    gcp_project: 
+      $type: Parameter
+      name: project
+    bucket: 
+      $type: Parameter
+      name: terraform_state_bucket
+    credentials:
+      credentials.json:
+        $type: Secret
+        name: credentials
+- name: slack-notify
+  dependsOn:
+    - provision-gcs-storage-bucket 
+  image: projectnebula/slack-notification
+  spec:
+    apitoken:
+       $type: Secret
+       name: slacktoken
+    channel:
+       $type: Parameter
+       name: slack_channel
+    message:
+       $type: Parameter
+       name: slack_message
