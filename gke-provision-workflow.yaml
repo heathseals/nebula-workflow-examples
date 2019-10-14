@@ -10,7 +10,7 @@ parameters:
     default: infracore-tf-state
   slack_channel:
     description: Slack channel (include preceding hashtag)
-    default: #team-infracore-nebula-workflows
+    default: "#team-infracore-nebula-workflows"
   slack_message:
     description: Slack message
 
