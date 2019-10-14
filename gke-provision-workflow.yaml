@@ -43,9 +43,32 @@ steps:
       credentials.json:
         $type: Secret
         name: credentials
+- name: provision-gke-with-terraform
+  dependsOn:
+    - provision-gcs-storage-bucket
+  image: projectnebula/terraform
+  spec:
+    backendConfig:
+      bucket: 
+        $type: Parameter
+        name: terraform_state_bucket
+    vars:
+      gcp_region: us-west1
+      gcp_location: us-west1-a
+      gcp_project: 
+        $type: Parameter
+        name: project
+    directory: gke-provision/infra/
+    credentials:
+      credentials.json:
+        $type: Secret
+        name: credentials
+    git:
+      name: nebula-workflow-examples
+      repository: https://github.com/heathseals/nebula-workflow-examples.git
 - name: slack-notify
   dependsOn:
-    - provision-gcs-storage-bucket 
+    - provision-gke-with-terraform 
   image: projectnebula/slack-notification
   spec:
     apitoken:
