@@ -13,6 +13,7 @@ parameters:
     default: "#team-infracore-nebula-workflows"
   slack_message:
     description: Slack message
+    default: "deploy successful"
 
 steps:
 - name: provision-gcs-storage-bucket
